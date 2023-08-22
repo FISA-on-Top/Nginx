@@ -14,11 +14,11 @@ pipeline{
                         docker stop web_server || true
                         docker rm -f web_server || true
                         rm -rf nginx/ || true
-                        git clone https://github.com/FISA-on-Top/Nginx.git nginx
+                        git clone -b feature/deploy https://github.com/FISA-on-Top/Nginx.git nginx
                         cd nginx
                         docker rmi nginx_react:latest || true
                         docker build --no-cache -t nginx_react .
-                        docker run -d -p 80:80 -v ~/nginx/build:/usr/share/nginx/html --name web_server nginx_react
+                        docker run -d --user 1000:1000 -p 80:80 -v ~/nginx/build:/usr/share/nginx/html --name web_server nginx_react
                         cp -r ~/build ~/nginx/build
                         rm -rf ~/build/
                         '
