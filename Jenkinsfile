@@ -13,8 +13,8 @@ pipeline{
                         cp -r ~/nginx/build ~/build
                         docker stop web_server || true
                         docker rm -f web_server || true
-                        sudo rm -rf ~/nginx/* || true
-                        git clone -b feature/deploy https://github.com/FISA-on-Top/Nginx.git nginx
+                        sudo rm -rf ~/nginx || true
+                        git clone -b feature/deploy https://github.com/FISA-on-Top/Nginx.git 
                         cd nginx
                         docker rmi nginx_react:latest || true
                         docker build --no-cache -t nginx_react .
