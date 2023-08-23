@@ -7,7 +7,7 @@ pipeline{
         stage('for deploy nginx in dev server'){
             steps {
                 echo " Execute shell start"
-                sshagent(credentials: ['devfront-server']){{
+                sshagent(credentials: ['devfront-server']){
                     sh '''
                         ssh -o StrictHostKeyChecking=yes ubuntu@${DEV_FRONT_SERVER_IP} '
                         cp -r ~/nginx/build ~/build
