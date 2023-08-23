@@ -10,6 +10,7 @@ pipeline{
                 sshagent(credentials: ['devfront-server']){
                     sh '''
                         ssh -o StrictHostKeyChecking=yes ubuntu@${DEV_FRONT_SERVER_IP} '
+                        mkdir ~/build
                         cp -r ~/nginx/build ~/build
                         docker stop web_server || true
                         docker rm -f web_server || true
