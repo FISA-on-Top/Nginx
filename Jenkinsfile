@@ -6,7 +6,7 @@ pipeline{
 
         //REPOSITORY_CREDENTIAL_ID = 'gitlab-jenkins-key'
         REPOSITORY_URL = 'https://github.com/FISA-on-Top/Nginx.git'
-        TARGET_BRANCH = 'feature/deploy' 
+        TARGET_BRANCH = 'main' 
 
         AWS_CREDENTIAL_NAME = 'ECR-access'
         ECR_PATH = '038331013212.dkr.ecr.ap-northeast-2.amazonaws.com'
