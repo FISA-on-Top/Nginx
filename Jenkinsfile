@@ -12,7 +12,7 @@ pipeline{
 
         AWS_CREDENTIAL_NAME = 'ECR-access'
         ECR_PATH = '038331013212.dkr.ecr.ap-northeast-2.amazonaws.com'
-        IMAGE_NAME = '038331013212.dkr.ecr.ap-northeast-2.amazonaws.com/nginx'
+        IMAGE_NAME = 'nginx'
         REGION = 'ap-northeast-2'
     }
     stages{
@@ -50,7 +50,7 @@ pipeline{
                 script{
                     sh '''
                     docker build --no-cache -t ${IMAGE_NAME}:${BUILD_NUMBER} .
-                    docker tag $IMAGE_NAME:$BUILD_NUMBER $IMAGE_NAME:latest
+                    docker tag $IMAGE_NAME:$BUILD_NUMBER $ECR_PATH/$IMAGE_NAME:latest
                     '''
                 }
             }
