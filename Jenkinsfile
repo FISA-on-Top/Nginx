@@ -93,29 +93,39 @@ pipeline{
             steps{
                 sshagent(credentials:['devfront-server']){
                     script{
-                        // Login to ECR and pull the Docker image
-                        def login = sh(script: "aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 038331013212.dkr.ecr.ap-northeast-2.amazonaws.com", returnStdout: true).trim()
-                        echo "Logged in to AWS ECR with ${login}"
+                        // def login = sh(script: "", returnStdout: true).trim()
+                        //echo "Logged in to AWS ECR with ${login}"
 
                         // SSH into the web server
                         sh '''
                         ssh -o StrictHostKeyChecking=yes ${WEBSERVER_USERNAME}@${WEBSERVER_IP} << EOF
+                            // Login to ECR and pull the Docker image
+                            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 038331013212.dkr.ecr.ap-northeast-2.amazonaws.com
+                            
                             # Pull image from ECR to web server
                             docker pull ${ECR_PATH}/${IMAGE_NAME}:latest
                             
-                            # Remove the existing 'nginx' container, if it exists
-                            if docker ps -a | grep ${CONTAINER_NAME}; then
-                                docker rm -f ${CONTAINER_NAME}
-                            fi
+                            // # Remove the existing 'nginx' container, if it exists
+                            // if docker ps -a | grep ${CONTAINER_NAME}; then
+                            //     docker rm -f ${CONTAINER_NAME}
+                            // fi
 
-                            # Run a new Docker container using the image from ECR
-                            docker run -d \
-                            -p 80:80\
-                            -v ~/nginx/build:/usr/share/nginx/html \
-                            --name ${CONTAINER_NAME} ${ECR_PATH}/${IMAGE_NAME}:latest
+                            // # Run a new Docker container using the image from ECR
+                            // docker run -d \
+                            // -p 80:80\
+                            // -v ~/nginx/build:/usr/share/nginx/html \
+                            // --name ${CONTAINER_NAME} ${ECR_PATH}/${IMAGE_NAME}:latest
                         EOF
                         '''
                     }
+                }
+            }
+            post{
+                success {
+                    echo 'success pull a image from ECR to web server'
+                }
+                failure {
+                    error 'fail pull a image from ECR to web server' // exit pipeline
                 }
             }
         }
