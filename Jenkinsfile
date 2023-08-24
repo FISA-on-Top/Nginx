@@ -75,14 +75,15 @@ pipeline{
                     }
                 }
             }
-        }
-        post {
-            success {
-                echo 'success upload image'
+            post {
+                success {
+                    echo 'success upload image'
+                }
+                failure {
+                    error 'fail upload image' // exit pipeline
+                }
             }
-            failure {
-                error 'fail upload image' // exit pipeline
-            }
         }
+
     }    
 }
