@@ -13,6 +13,7 @@ pipeline{
         IMAGE_NAME = 'nginx'
         REGION = 'ap-northeast-2'
 
+        SSH_KEY_PATH = '/var/jenkins_home/.ssh/DevFront.pem'
         WEBSERVER_USERNAME = 'ubuntu'
         WEBSERVER_IP = '43.201.20.90' 
         CONTAINER_NAME = 'webserver'
@@ -96,19 +97,17 @@ pipeline{
                         // def login = sh(script: "", returnStdout: true).trim()
                         //echo "Logged in to AWS ECR with ${login}"
 
-                        def login = 'login'
-
                         // SSH into the web server
                         sh """                      
-                            ssh -i /var/jenkins_home/.ssh/DevFront.pem -o StrictHostKeyChecking=no ${WEBSERVER_USERNAME}@${WEBSERVER_IP} \"
+                            ssh -i ${SSH_KEY_PATH} -o StrictHostKeyChecking=no ${WEBSERVER_USERNAME}@${WEBSERVER_IP} '
                             ls
                             
                             # Login to ECR and pull the Docker image
-                            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 038331013212.dkr.ecr.ap-northeast-2.amazonaws.com
+                            # aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 038331013212.dkr.ecr.ap-northeast-2.amazonaws.com
                             
                             # Pull image from ECR to web server
-                            docker pull ${ECR_PATH}/"${IMAGE_NAME}":latest
-                            #docker pull 038331013212.dkr.ecr.ap-northeast-2.amazonaws.com/nginx:latest
+                            docker pull ${ECR_PATH}/${IMAGE_NAME}:latest
+                            # docker pull 038331013212.dkr.ecr.ap-northeast-2.amazonaws.com/nginx:latest
                             
                             # Remove the existing container, if it exists
                             if [ "$(docker ps -a -q -f name=${CONTAINER_NAME})" ]; then
@@ -120,7 +119,7 @@ pipeline{
                             -p 80:80\
                             -v ~/nginx/build:/usr/share/nginx/html \
                             --name ${CONTAINER_NAME} ${ECR_PATH}/${IMAGE_NAME}:latest
-                            \"
+                            '
                         """
 
                     }
