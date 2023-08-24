@@ -2,40 +2,86 @@ pipeline{
     agent any   
 
     environment{
-        IMAGE_TAG = 'latest'
-        ECR_REPO = 'your-ecr-repository-url'
-        ap-northeast-2
+        TIME_ZONE = 'Asia/Seoul'
+
+        //REPOSITORY_CREDENTIAL_ID = 'gitlab-jenkins-key'
+        REPOSITORY_URL = 'https://github.com/FISA-on-Top/Nginx.git'
+        TARGET_BRANCH = 'feature/deploy' 
+
+        CONTAINER_NAME = 'nginx-react'
+
+        AWS_CREDENTIAL_NAME = 'ECR-access'
+        ECR_PATH = '038331013212.dkr.ecr.ap-northeast-2.amazonaws.com'
+        IMAGE_NAME = '038331013212.dkr.ecr.ap-northeast-2.amazonaws.com/nginx'
+        REGION = 'ap-northeast-2'
     }
     stages{
+        stage('init') {
+            steps {
+                echo 'init stage'
+                deleteDir()
+            }
+            post {
+                success {
+                    echo 'success init in pipeline'
+                }
+                failure {
+                    error 'fail init in pipeline'
+                }
+            }
+        }    
         stage('Clone'){
             steps{
-                git branch: 'feature/deploy', 
-                url: 'https://github.com/FISA-on-Top/Nginx.git'
+                git branch: "$TARGET_BRANCH", 
+                url: "$REPOSITORY_URL"
+                sh "ls -al"
+            }
+            post{
+                success {
+                    echo 'success clone project'
+                }
+                failure {
+                    error 'fail clone project' // exit pipeline
+                }     
             }
         }
         stage('Build Docker Image'){
             steps{
                 script{
-                    sh 'docker build --no-cache -t nginx-react:${IMAGE_TAG} .'
+                    sh '''
+                    docker build --no-cache -t ${IMAGE_NAME}:${BUILD_NUMBER} .
+                    docker tag $IMAGE_NAME:$BUILD_NUMBER $IMAGE_NAME:latest
+                    '''
+                }
+            }
+            post{
+                success {
+                    echo 'success dockerizing project'
+                }
+                failure {
+                    error 'fail dockerizing project' // exit pipeline
                 }
             }
         }
         stage('Push to ECR') {
             steps {
                 script {
-                    echo "aws cli 설치"
-                    sh '''
-                        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-                        unzip awscliv2.zip
-                        sudo ./aws/install
-                    '''
-                    // // ECR에 로그인합니다.
-                    // sh 'aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 038331013212.dkr.ecr.ap-northeast-2.amazonaws.com'
-                    
-                    // // 이미지를 ECR에 푸시합니다.
-                    // sh 'docker tag jenkins:latest 038331013212.dkr.ecr.ap-northeast-2.amazonaws.com/top_hub:latest'
-                    // sh 'docker push 038331013212.dkr.ecr.ap-northeast-2.amazonaws.com/top_hub'
+                    // cleanup current user docker credentials
+                    sh 'rm -f ~/.dockercfg ~/.docker/config.json || true'
+
+                    docker.withRegistry("https://${ECR_PATH}", "ecr:${REGION}:${AWS_CREDENTIAL_NAME}") {
+                      docker.image("${IMAGE_NAME}:${BUILD_NUMBER}").push()
+                      docker.image("${IMAGE_NAME}:latest").push()
+                    }
                 }
+            }
+        }
+        post {
+            success {
+                echo 'success upload image'
+            }
+            failure {
+                error 'fail upload image' // exit pipeline
             }
         }
     }    
