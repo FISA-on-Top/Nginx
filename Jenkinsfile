@@ -50,8 +50,9 @@ pipeline{
                 script{
                     sh '''
                     docker build --no-cache -t ${IMAGE_NAME}:${BUILD_NUMBER} .
+                    docker build -t ${IMAGE_NAME}:latest .
                     docker tag $IMAGE_NAME:$BUILD_NUMBER $ECR_PATH/$IMAGE_NAME:$BUILD_NUMBER
-                    docker tag $IMAGE_NAME:$BUILD_NUMBER $ECR_PATH/$IMAGE_NAME:latest
+                    docker tag $IMAGE_NAME:latest $ECR_PATH/$IMAGE_NAME:latest
                     '''
                 }
             }
