@@ -110,8 +110,8 @@ pipeline{
                             # docker pull 038331013212.dkr.ecr.ap-northeast-2.amazonaws.com/nginx:latest
                             
                             # Remove the existing container, if it exists
-                            if [ "$(docker ps -a -q -f name=$CONTAINER_NAME)" ]; then
-                                docker rm -f $(docker ps -a -q -f name=$CONTAINER_NAME)
+                            if docker ps -a | grep $CONTAINER_NAME; then
+                                docker rm -f $CONTAINER_NAME
                             fi
 
                             # Run a new Docker container using the image from ECR
