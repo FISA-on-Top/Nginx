@@ -8,8 +8,6 @@ pipeline{
         REPOSITORY_URL = 'https://github.com/FISA-on-Top/Nginx.git'
         TARGET_BRANCH = 'feature/deploy' 
 
-        CONTAINER_NAME = 'nginx-react'
-
         AWS_CREDENTIAL_NAME = 'ECR-access'
         ECR_PATH = '038331013212.dkr.ecr.ap-northeast-2.amazonaws.com'
         IMAGE_NAME = 'nginx'
@@ -17,6 +15,7 @@ pipeline{
 
         WEBSERVER_USERNAME = 'ubuntu'
         WEBSERVER_IP = '43.201.20.90' 
+        CONTAINER_NAME = 'webserver'
     }
     stages{
         stage('init') {
@@ -89,7 +88,7 @@ pipeline{
                 }
             }
         }
-        stage ('Pull to Web server from ECR') {
+        stage('Pull to Web server from ECR') {
 
             steps{
                 sshagent(credentials:['devfront-server']){
@@ -117,25 +116,6 @@ pipeline{
                         EOF
                         '''
                     }
-                }
-            }
-        }
-        
-        stage ('Deploy to Web server from ECR') {
-            agent{
-                sshagent(['6418520a-09b4-481e-925e-88c36a2a88cc'])
-            }
-            script{
-                    docker.withRegistry("https://${ECR_PATH}", "ecr:${REGION}:${AWS_CREDENTIAL_NAME}") {
-                      docker.image("${IMAGE_NAME}:latest").pull()
-                    }
-            }
-            post {
-                success {
-                    echo 'success pull image to wab server'
-                }
-                failure {
-                    error 'fail pull image to wab server' // exit pipeline
                 }
             }
         }
