@@ -99,26 +99,26 @@ pipeline{
 
                         // SSH into the web server
                         sh """                      
-                            ssh -i ${SSH_KEY_PATH} -o StrictHostKeyChecking=no ${WEBSERVER_USERNAME}@${WEBSERVER_IP} '
+                            ssh -i $SSH_KEY_PATH -o StrictHostKeyChecking=no $WEBSERVER_USERNAME@$WEBSERVER_IP '
                             ls
                             
                             # Login to ECR and pull the Docker image
                             # aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 038331013212.dkr.ecr.ap-northeast-2.amazonaws.com
                             
                             # Pull image from ECR to web server
-                            docker pull ${ECR_PATH}/${IMAGE_NAME}:latest
+                            docker pull $ECR_PATH/$IMAGE_NAME:latest
                             # docker pull 038331013212.dkr.ecr.ap-northeast-2.amazonaws.com/nginx:latest
                             
                             # Remove the existing container, if it exists
-                            if [ "$(docker ps -a -q -f name=${CONTAINER_NAME})" ]; then
-                                docker rm -f $(docker ps -a -q -f name=${CONTAINER_NAME})
+                            if [ "$(docker ps -a -q -f name=$CONTAINER_NAME)" ]; then
+                                docker rm -f $(docker ps -a -q -f name=$CONTAINER_NAME)
                             fi
 
                             # Run a new Docker container using the image from ECR
                             docker run -d \
                             -p 80:80\
                             -v ~/nginx/build:/usr/share/nginx/html \
-                            --name ${CONTAINER_NAME} ${ECR_PATH}/${IMAGE_NAME}:latest
+                            --name $CONTAINER_NAME $ECR_PATH/$IMAGE_NAME:latest
                             '
                         """
 
