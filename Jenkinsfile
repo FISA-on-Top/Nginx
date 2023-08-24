@@ -107,9 +107,9 @@ pipeline{
                             # Pull image from ECR to web server
                             docker pull ${ECR_PATH}/${IMAGE_NAME}:latest
                             
-                            // # Remove the existing 'nginx' container, if it exists
-                            if docker ps -a | grep ${CONTAINER_NAME}; then
-                                docker rm -f ${CONTAINER_NAME}
+                            // # Remove the existing container, if it exists
+                            if [ "$(docker ps -a -q -f name=${CONTAINER_NAME})" ]; then
+                                docker rm -f $(docker ps -a -q -f name=${CONTAINER_NAME})
                             fi
 
                             // # Run a new Docker container using the image from ECR
