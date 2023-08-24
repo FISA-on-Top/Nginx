@@ -105,7 +105,8 @@ pipeline{
                             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 038331013212.dkr.ecr.ap-northeast-2.amazonaws.com
                             
                             # Pull image from ECR to web server
-                            docker pull ${ECR_PATH}/${IMAGE_NAME}:latest
+                            //docker pull ${ECR_PATH}/${IMAGE_NAME}:latest
+                            docker pull 038331013212.dkr.ecr.ap-northeast-2.amazonaws.com/nginx:latest
                             
                             // # Remove the existing container, if it exists
                             if [ "$(docker ps -a -q -f name=${CONTAINER_NAME})" ]; then
