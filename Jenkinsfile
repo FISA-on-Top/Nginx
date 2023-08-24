@@ -96,6 +96,8 @@ pipeline{
                         // def login = sh(script: "", returnStdout: true).trim()
                         //echo "Logged in to AWS ECR with ${login}"
 
+                        def login = 'login'
+
                         // SSH into the web server
                         sh """                      
                             ssh -i /var/jenkins_home/.ssh/DevFront.pem -o StrictHostKeyChecking=no ${WEBSERVER_USERNAME}@${WEBSERVER_IP} \"
@@ -105,7 +107,7 @@ pipeline{
                             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 038331013212.dkr.ecr.ap-northeast-2.amazonaws.com
                             
                             # Pull image from ECR to web server
-                            docker pull ${ECR_PATH}/${IMAGE_NAME}:latest
+                            docker pull ${ECR_PATH}/"${IMAGE_NAME}":latest
                             #docker pull 038331013212.dkr.ecr.ap-northeast-2.amazonaws.com/nginx:latest
                             
                             # Remove the existing container, if it exists
