@@ -1,0 +1,110 @@
+pipeline{ 
+    agent any   
+<<<<<<< Updated upstream:Jenkinsfile
+
+    environment{
+        IMAGE_TAG = 'latest'
+        ECR_REPO = 'your-ecr-repository-url'
+        ap-northeast-2
+=======
+    environment {
+        DEV_FRONT_SERVER_IP = '43.201.20.90' 
+        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
+>>>>>>> Stashed changes:Jenkinsfile_old
+    }
+    stages{
+        stage('Clone'){
+            steps{
+                git branch: 'feature/deploy', 
+                url: 'https://github.com/FISA-on-Top/Nginx.git'
+            }
+        }
+        stage('Build Docker Image'){
+            steps{
+                script{
+                    sh 'docker build --no-cache -t nginx-react:${IMAGE_TAG} .'
+                }
+            }
+        }
+        stage('Push to ECR') {
+            steps {
+                script {
+                    echo "aws cli 설치"
+                    sh '''
+<<<<<<< Updated upstream:Jenkinsfile
+                        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                        unzip awscliv2.zip
+                        sudo ./aws/install
+                    '''
+                    // // ECR에 로그인합니다.
+                    // sh 'aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 038331013212.dkr.ecr.ap-northeast-2.amazonaws.com'
+                    
+                    // // 이미지를 ECR에 푸시합니다.
+                    // sh 'docker tag jenkins:latest 038331013212.dkr.ecr.ap-northeast-2.amazonaws.com/top_hub:latest'
+                    // sh 'docker push 038331013212.dkr.ecr.ap-northeast-2.amazonaws.com/top_hub'
+=======
+                        ssh -o StrictHostKeyChecking=yes ubuntu@${DEV_FRONT_SERVER_IP} '
+                        
+                        if [-d nginx]; then
+                            cd nginx 
+                            git pull
+                        else
+                            git clone -b feature/deploy https://github.com/FISA-on-Top/Nginx.git nginx
+                        fi
+                        
+                        docker stop web_server || true
+                        docker rm -f web_server || true
+                        cd nginx
+                        docker rmi nginx_react:latest || true
+                        docker build --no-cache -t nginx_react .
+                        docker run -d --user 1000:1000 -p 80:80 -v ~/nginx/build:/usr/share/nginx/html --name web_server nginx_react
+                        cp -r ~/build ~/nginx/build
+                        rm -rf ~/build
+                        '
+                    '''               
+                }
+                echo " Execute shell end"
+            }
+        
+        }
+    }
+}
+
+
+////////////////////////////////////
+pipeline{
+    agent any   
+    environment {
+        DEV_FRONT_SERVER_IP = '43.201.20.90' 
+    }
+    stages {
+        stage('for deploy nginx in dev server'){
+            steps{
+                git branch : 'feature/deploy',
+                credentialsId: '',
+                url : 'https://github.com/FISA-on-Top/Nginx.git'
+            }
+            steps {
+                echo " Execute shell start"
+                sshagent(['6418520a-09b4-481e-925e-88c36a2a88cc']) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=yes ubuntu@${DEV_FRONT_SERVER_IP} '
+                        cp -r ~/nginx/build ~/build
+                        docker stop web_server || true
+                        docker rm -f web_server || true
+                        sudo rm -rf ~/nginx || true
+                        git clone -b feature/deploy https://github.com/FISA-on-Top/Nginx.git 
+                        cd nginx
+                        docker rmi nginx_react:latest || true
+                        docker build --no-cache -t nginx_react .
+                        docker run -d --user 1000:1000 -p 80:80 -v ~/nginx/build:/usr/share/nginx/html --name web_server nginx_react
+                        cp -r ~/build ~/nginx/build
+                        rm -rf ~/build/
+                        '
+                    '''               
+>>>>>>> Stashed changes:Jenkinsfile_old
+                }
+            }
+        }
+    }    
+}
