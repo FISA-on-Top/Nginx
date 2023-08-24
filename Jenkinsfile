@@ -92,7 +92,7 @@ pipeline{
         stage ('Pull to Web server from ECR') {
 
             steps{
-                sshagent(credentials:[]'devfront-server']){
+                sshagent(credentials:['devfront-server']){
                     script{
                         // Login to ECR and pull the Docker image
                         def login = sh(script: "aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 038331013212.dkr.ecr.ap-northeast-2.amazonaws.com", returnStdout: true).trim()
