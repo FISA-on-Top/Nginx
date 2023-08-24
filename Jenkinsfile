@@ -98,7 +98,7 @@ pipeline{
 
                         // SSH into the web server
                         sh '''
-                        ssh -o StrictHostKeyChecking=yes ${WEBSERVER_USERNAME}@${WEBSERVER_IP} << EOF
+                        ssh -o StrictHostKeyChecking=no ${WEBSERVER_USERNAME}@${WEBSERVER_IP} << EOF
                             // Login to ECR and pull the Docker image
                             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 038331013212.dkr.ecr.ap-northeast-2.amazonaws.com
                             
