@@ -92,12 +92,7 @@ pipeline{
         stage('Pull to Web server from ECR') {
 
             steps{
-                sshagent(credentials:['devfront-server']){
-                    script{
-                        // def login = sh(script: "", returnStdout: true).trim()
-                        //echo "Logged in to AWS ECR with ${login}"
-
-                        // SSH into the web server
+                sshagent(credentials:['devfront']){
                         sh """                      
                             ssh -o StrictHostKeyChecking=no $WEBSERVER_USERNAME@$WEBSERVER_IP '
                             ls
@@ -121,8 +116,6 @@ pipeline{
                             --name $CONTAINER_NAME $ECR_PATH/$IMAGE_NAME:latest
                             '
                         """
-
-                    }
                 }
             }
             post{
