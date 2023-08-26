@@ -19,10 +19,10 @@ pipeline{
     }
     stages{
         stage('Build Docker Image'){
-            // when{
-            //     // Dockerfile에 대한 변경 사항이 있는 경우에만 실행
-            //     changeset "dockerfile"
-            // }            
+            when{
+                // Dockerfile에 대한 변경 사항이 있는 경우에만 실행
+                changeset "dockerfile"
+            }            
             steps{
                 script{
                     sh '''
@@ -43,10 +43,10 @@ pipeline{
             }
         }
         stage('Push to ECR') {
-            // when{
-            //     // Dockerfile에 대한 변경 사항이 있는 경우에만 실행
-            //     changeset "dockerfile"
-            // }
+            when{
+                // Dockerfile에 대한 변경 사항이 있는 경우에만 실행
+                changeset "dockerfile"
+            }
             steps {
                 script {
                     // cleanup current user docker credentials
@@ -70,13 +70,13 @@ pipeline{
                 }
             }
         }
-        stage('Pull and Delpoy') {
+        stage('Pull and Delpoy to Web server') {
             when {
-                //branch 'develop'
-                anyOf {
-                    branch 'feature/*'
-                    branch 'develop'
-                }
+                branch 'develop'
+                // anyOf {
+                //     branch 'feature/*'
+                //     branch 'develop'
+                // }
             }            
             steps{
                 echo "Current branch is ${env.BRANCH_NAME}"
@@ -88,7 +88,7 @@ pipeline{
                             
                             # Login to ECR and pull the Docker image
                             echo "login into aws"
-                            aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ECR_PATH
+                            aws ecr get-login-password --region $REGION | docker login --username $ECR_NAME --password-stdin $ECR_PATH
                             
                             # Pull image from ECR to web server
                             echo "pull the image from ECR"
