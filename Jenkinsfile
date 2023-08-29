@@ -60,14 +60,15 @@ pipeline{
                       docker.image("${IMAGE_NAME}:${IMAGE_VERSION}").push()
                       docker.image("${IMAGE_NAME}:latest").push()
                     }
-
+                }
+            }
+            post {
+                always{
                     sh("docker rmi -f ${ECR_PATH}/${IMAGE_NAME}:${IMAGE_VERSION}")
                     sh("docker rmi -f ${ECR_PATH}/${IMAGE_NAME}:latest")
                     sh("docker rmi -f ${IMAGE_NAME}:${IMAGE_VERSION}")
                     sh("docker rmi -f ${IMAGE_NAME}:latest")
                 }
-            }
-            post {
                 success {
                     echo 'success upload image'
                 }
@@ -78,11 +79,11 @@ pipeline{
         }
         stage('Pull and Delpoy to Web server') {
             when {
-                //branch 'develop'
-                anyOf {
-                    branch 'feature/*'
-                    branch 'develop'
-                }
+                branch 'develop'
+                // anyOf {
+                //     branch 'feature/*'
+                //     branch 'develop'
+                // }
             }            
             steps{
                 echo "Current branch is ${env.BRANCH_NAME}"
@@ -108,7 +109,7 @@ pipeline{
 
                             # Run a new Docker container using the image from ECR
                             echo "docker run"
-                            docker run \
+                            docker run -d \
                             -p 80:80 \
                             -p 3000:3000 \
                             -v ~/nginx/log:/var/log/nginx \
