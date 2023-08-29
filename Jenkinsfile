@@ -104,9 +104,9 @@ pipeline{
 
                             # Run a new Docker container using the image from ECR
                             echo "docker run"
-                            docker run -d \
-                            -p 80:80\
-                            -p 3000:3000\
+                            docker run \
+                            -p 80:80 \
+                            -p 3000:3000 \
                             -v ~/nginx/log:/var/log/nginx/log \
                             -v ~/nginx/build:/usr/share/nginx/html \
                             --name $CONTAINER_NAME $ECR_PATH/$IMAGE_NAME:latest
