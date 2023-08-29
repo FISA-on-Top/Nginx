@@ -19,12 +19,12 @@ pipeline{
     }
     stages{
         stage('Build Docker Image'){
-            when{
-                anyOf {
-                    changeset "dockerfile"
-                    changeset "conf/*"
-                }
-            }            
+            // when{
+            //     anyOf {
+            //         changeset "dockerfile"
+            //         changeset "conf/*"
+            //     }
+            // }            
             steps{
                 script{
                     sh '''
@@ -45,12 +45,12 @@ pipeline{
             }
         }
         stage('Push to ECR') {
-            when{
-                anyOf {
-                    changeset "dockerfile"
-                    changeset "conf/*"
-                }
-            }
+            // when{
+            //     anyOf {
+            //         changeset "dockerfile"
+            //         changeset "conf/*"
+            //     }
+            // }
             steps {
                 script {
                     // cleanup current user docker credentials
