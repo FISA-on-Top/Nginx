@@ -107,7 +107,7 @@ pipeline{
                             docker run \
                             -p 80:80 \
                             -p 3000:3000 \
-                            -v ~/nginx/log:/var/log/nginx/log \
+                            -v ~/nginx/log:/var/log/nginx \
                             -v ~/nginx/build:/usr/share/nginx/html \
                             --name $CONTAINER_NAME $ECR_PATH/$IMAGE_NAME:latest
                             '
