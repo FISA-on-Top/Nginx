@@ -74,11 +74,11 @@ pipeline{
         }
         stage('Pull and Delpoy to Web server') {
             when {
-                branch 'develop'
-                // anyOf {
-                //     branch 'feature/*'
-                //     branch 'develop'
-                // }
+                //branch 'develop'
+                anyOf {
+                    branch 'feature/*'
+                    branch 'develop'
+                }
             }            
             steps{
                 echo "Current branch is ${env.BRANCH_NAME}"
