@@ -71,6 +71,7 @@ pipeline{
                         sh '''
                         # docker build -f Dockerfile_Production --no-cache -t ${IMAGE_NAME}:${IMAGE_VERSION} .
                         docker build -f Dockerfile_Production --no-cache -t ${IMAGE_NAME}:latest .
+
                         # docker tag $IMAGE_NAME:$IMAGE_VERSION $ECR_PATH/$IMAGE_NAME:$IMAGE_VERSION
                         docker tag $IMAGE_NAME:latest $ECR_PATH/$IMAGE_NAME:latest
                         '''
@@ -135,7 +136,7 @@ pipeline{
                     sh 'rm -f ~/.dockercfg ~/.docker/config.json || true'
 
                     docker.withRegistry("https://${ECR_PATH}", "ecr:${REGION}:${AWS_CREDENTIAL_NAME}") {
-                      docker.image("${IMAGE_NAME}:${IMAGE_VERSION}").push()
+                      //docker.image("${IMAGE_NAME}:${IMAGE_VERSION}").push()
                       docker.image("${IMAGE_NAME}:latest").push()
                     }
                 }
