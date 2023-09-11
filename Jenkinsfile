@@ -26,6 +26,7 @@ pipeline{
             steps{
                 echo 'Clone'
                 checkout([
+                    $class: 'GitSCM',
                     branches: [[name: env.BRANCH_NAME]],
                     userRemoteConfigs: [[url: WEB_URL]]
                 ])
