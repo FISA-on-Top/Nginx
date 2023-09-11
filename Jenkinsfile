@@ -19,10 +19,12 @@ pipeline{
     }
     stages{
         stage('Build Docker Image'){
-            when{
-                // Dockerfile에 대한 변경 사항이 있는 경우에만 실행
-                changeset "dockerfile"
-            }            
+            // when{
+            //     anyOf {
+            //         changeset "dockerfile"
+            //         changeset "conf/*"
+            //     }
+            // }            
             steps{
                 script{
                     sh '''
@@ -43,10 +45,12 @@ pipeline{
             }
         }
         stage('Push to ECR') {
-            when{
-                // Dockerfile에 대한 변경 사항이 있는 경우에만 실행
-                changeset "dockerfile"
-            }
+            // when{
+            //     anyOf {
+            //         changeset "dockerfile"
+            //         changeset "conf/*"
+            //     }
+            // }
             steps {
                 script {
                     // cleanup current user docker credentials
@@ -56,12 +60,15 @@ pipeline{
                       docker.image("${IMAGE_NAME}:${IMAGE_VERSION}").push()
                       docker.image("${IMAGE_NAME}:latest").push()
                     }
-
-                    sh "docker rmi ${IMAGE_NAME}:${IMAGE_VERSION}"
-                    sh "docker rmi ${IMAGE_NAME}:latest"
                 }
             }
             post {
+                always{
+                    sh("docker rmi -f ${ECR_PATH}/${IMAGE_NAME}:${IMAGE_VERSION}")
+                    sh("docker rmi -f ${ECR_PATH}/${IMAGE_NAME}:latest")
+                    sh("docker rmi -f ${IMAGE_NAME}:${IMAGE_VERSION}")
+                    sh("docker rmi -f ${IMAGE_NAME}:latest")
+                }
                 success {
                     echo 'success upload image'
                 }
@@ -103,7 +110,9 @@ pipeline{
                             # Run a new Docker container using the image from ECR
                             echo "docker run"
                             docker run -d \
-                            -p 80:80\
+                            -p 80:80 \
+                            -p 3000:3000 \
+                            -v ~/nginx/log:/var/log/nginx \
                             -v ~/nginx/build:/usr/share/nginx/html \
                             --name $CONTAINER_NAME $ECR_PATH/$IMAGE_NAME:latest
                             '
