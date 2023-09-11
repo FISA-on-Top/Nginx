@@ -47,10 +47,7 @@ pipeline{
                 dir('my_directory/Nginx') {
                     checkout([
                         $class: 'GitSCM',
-                        branches: [[name: 'master']],
-                        doGenerateSubmoduleConfigurations: false,
-                        extensions: [],
-                        submoduleCfg: [],
+                        branches: [[name: 'main']],
                         userRemoteConfigs: [[url: NGINX_URL]]
                     ])
                 }
@@ -58,10 +55,7 @@ pipeline{
                 dir('my_directory/frontend') {
                     checkout([
                         $class: 'GitSCM',
-                        branches: [[name: 'master']],
-                        doGenerateSubmoduleConfigurations: false,
-                        extensions: [],
-                        submoduleCfg: [],
+                        branches: [[name: 'main']],
                         userRemoteConfigs: [[url: WEB_URL]]
                     ])
                 }
