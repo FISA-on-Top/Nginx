@@ -15,7 +15,7 @@ pipeline{
         REGION = 'ap-northeast-2'
     }
     stages{
-        stage('init') {
+        stage('init for Prod server') {
             when{
                 branch 'main'
             }
@@ -87,38 +87,6 @@ pipeline{
                 }
             }
         }
-
-        stage('Build Docker Image for Dev server'){
-            when{
-            //     anyOf {
-            //         changeset "dockerfile"
-            //         changeset "conf/*"
-            //     }
-                branch 'develop'
-            }
-            environment {
-                IMAGE_NAME = 'nginx'
-            }            
-            steps{
-                script{
-                    sh '''
-                    docker build --no-cache -t ${IMAGE_NAME}:${IMAGE_VERSION} .
-                    docker build -t ${IMAGE_NAME}:latest .
-                    docker tag $IMAGE_NAME:$IMAGE_VERSION $ECR_PATH/$IMAGE_NAME:$IMAGE_VERSION
-                    docker tag $IMAGE_NAME:latest $ECR_PATH/$IMAGE_NAME:latest
-                    '''
-                }
-            }
-            post{
-                success {
-                    echo 'success dockerizing project'
-                }
-                failure {
-                    error 'fail dockerizing project' // exit pipeline
-                }
-            }
-        }
-
         stage('Push to ECR for Prod server') {
             when{
             //     anyOf {
@@ -155,7 +123,39 @@ pipeline{
                     error 'fail upload image' // exit pipeline
                 }
             }
-        }        
+        }  
+        stage('Build Docker Image for Dev server'){
+            when{
+            //     anyOf {
+            //         changeset "dockerfile"
+            //         changeset "conf/*"
+            //     }
+                branch 'develop'
+            }
+            environment {
+                IMAGE_NAME = 'nginx'
+            }            
+            steps{
+                script{
+                    sh '''
+                    docker build --no-cache -t ${IMAGE_NAME}:${IMAGE_VERSION} .
+                    docker build -t ${IMAGE_NAME}:latest .
+                    docker tag $IMAGE_NAME:$IMAGE_VERSION $ECR_PATH/$IMAGE_NAME:$IMAGE_VERSION
+                    docker tag $IMAGE_NAME:latest $ECR_PATH/$IMAGE_NAME:latest
+                    '''
+                }
+            }
+            post{
+                success {
+                    echo 'success dockerizing project'
+                }
+                failure {
+                    error 'fail dockerizing project' // exit pipeline
+                }
+            }
+        }
+
+      
         stage('Push to ECR for Dev server') {
             when{
             //     anyOf {
