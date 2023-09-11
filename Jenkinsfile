@@ -15,7 +15,23 @@ pipeline{
         REGION = 'ap-northeast-2'
     }
     stages{
-        
+        stage('init') {
+            when{
+                branch 'main'
+            }
+            steps {
+                echo 'init stage'
+                deleteDir()
+            }
+            post {
+                success {
+                    echo 'success init in pipeline'
+                }
+                failure {
+                    error 'fail init in pipeline'
+                }
+            }
+        }
         stage('Build Docker Image for Prod server'){
             when{
                 branch 'main'
@@ -24,21 +40,47 @@ pipeline{
                 IMAGE_NAME = 'front'
             }
             steps{
-                echo 'Clone'
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: env.BRANCH_NAME]],
-                    userRemoteConfigs: [[url: WEB_URL]]
-                ])
+                // 1. 디렉토리 생성
+                sh 'mkdir -p my_directory'
 
+                echo 'Clone'
+                dir('my_directory/Nginx') {
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: 'master']],
+                        doGenerateSubmoduleConfigurations: false,
+                        extensions: [],
+                        submoduleCfg: [],
+                        userRemoteConfigs: [[url: NGINX_URL]]
+                    ])
+                }
+                
+                dir('my_directory/frontend') {
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: 'master']],
+                        doGenerateSubmoduleConfigurations: false,
+                        extensions: [],
+                        submoduleCfg: [],
+                        userRemoteConfigs: [[url: WEB_URL]]
+                    ])
+                }
+
+                // 3. 'Nginx'에 있는 dockerfile을 생성된 디렉토리 하위로 복사
+                echo 'Copy dockerfile'
+                sh 'cp my_directory/Nginx/Dockerfile_Production my_directory/'
+                
+                // 4. 복사된 dockerfile을 이미지로 빌드
                 echo 'Build'
-                script{
-                    sh '''
-                    # docker build -f Dockerfile_Production --no-cache -t ${IMAGE_NAME}:${IMAGE_VERSION} .
-                    docker build -f Dockerfile_Production --no-cache -t ${IMAGE_NAME}:latest .
-                    # docker tag $IMAGE_NAME:$IMAGE_VERSION $ECR_PATH/$IMAGE_NAME:$IMAGE_VERSION
-                    docker tag $IMAGE_NAME:latest $ECR_PATH/$IMAGE_NAME:latest
-                    '''
+                dir('my_directory') {
+                    script{
+                        sh '''
+                        # docker build -f Dockerfile_Production --no-cache -t ${IMAGE_NAME}:${IMAGE_VERSION} .
+                        docker build -f Dockerfile_Production --no-cache -t ${IMAGE_NAME}:latest .
+                        # docker tag $IMAGE_NAME:$IMAGE_VERSION $ECR_PATH/$IMAGE_NAME:$IMAGE_VERSION
+                        docker tag $IMAGE_NAME:latest $ECR_PATH/$IMAGE_NAME:latest
+                        '''
+                    }
                 }
             }
             post{
