@@ -84,7 +84,13 @@ pipeline{
                 //     branch 'feature/*'
                 //     branch 'develop'
                 // }
-            }            
+            }  
+            environment {
+                IMAGE_NAME = 'nginx'
+                WEBSERVER_USERNAME = 'ubuntu'
+                WEBSERVER_IP = '43.202.105.57' 
+                CONTAINER_NAME = 'webserver'
+            }           
             steps{
                 echo "Current branch is ${env.BRANCH_NAME}"
 
